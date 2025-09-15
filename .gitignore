@@ -1,0 +1,14 @@
+# Byte-compiled Python files
+__pycache__/
+
+# Model files
+model/
+
+# Dataset files
+dataset/
+
+# Output files
+outputs/
+results/
+
+wandb/
