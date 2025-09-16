@@ -84,16 +84,16 @@ if __name__ == "__main__":
 
     # for ckpt_dir in ['results/sd15-align-ct5f/']:
     # if os.path.exists(os.path.join(ckpt_dir, f"s{step}_adapter")):
-    ckpt_dir = "model/LongSD/"
-    adapter = TextAdapter.from_pretrained(os.path.join(ckpt_dir, f"s28750_adapter"), use_safetensors=True)
-    monkeypatch_or_replace_lora_extended(
-        vis,
-        torch.load(os.path.join(ckpt_dir, f"s28750_lora_vis.pt"), map_location="cpu"),
-        r=32,
-        target_replace_module=VIS_REPLACE_MODULES,
-    )
-    collapse_lora(vis, VIS_REPLACE_MODULES)
-    monkeypatch_remove_lora(vis)
+    # ckpt_dir = "model/LongSD/"
+    # adapter = TextAdapter.from_pretrained(os.path.join(ckpt_dir, f"s28750_adapter"), use_safetensors=True)
+    # monkeypatch_or_replace_lora_extended(
+    #     vis,
+    #     torch.load(os.path.join(ckpt_dir, f"s28750_lora_vis.pt"), map_location="cpu"),
+    #     r=32,
+    #     target_replace_module=VIS_REPLACE_MODULES,
+    # )
+    # collapse_lora(vis, VIS_REPLACE_MODULES)
+    # monkeypatch_remove_lora(vis)
 
     # for ckpt_dir in ['results/' + args.ckpt_dir]:
     #     if os.path.exists(os.path.join(ckpt_dir, f"s{step}_adapter")):
@@ -174,7 +174,7 @@ if __name__ == "__main__":
             images = pipeline(prompt_embeds=validation_embeddings,
                               negative_prompt_embeds=validation_embeddings_uc,  # [i:i + 1]
                               **add_kwargs, generator=generator).images
-    
+
     flag = 0
     for image in images:
         image.save(os.path.join(save_path, f"{flag}-output.png"))
