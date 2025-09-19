@@ -87,7 +87,7 @@ def sample_images(vae, adapter, caption2embed_simple, unet, args, accelerator, w
 
 
 def load_dataset(args):
-    data_path = "xxx/dataset/"
+    data_path = "dataset/"
 
     train_transforms = transforms.Compose(
         [

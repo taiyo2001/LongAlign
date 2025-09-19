@@ -96,17 +96,18 @@ def main(args):
     # Modules of T2I diffusion models
     vae = AutoencoderKL.from_pretrained(args.pretrained_decoder, subfolder="vae", torch_dtype=weight_dtype)
     vis = UNet2DConditionModel.from_pretrained(args.pretrained_decoder, subfolder="unet", torch_dtype=weight_dtype)
+    # vis.enable_xformers_memory_efficient_attention()
 
     tokenizer_clip = AutoTokenizer.from_pretrained(args.pretrained_decoder, subfolder="tokenizer",
-                                                   torch_dtype=weight_dtype, use_fast=False)
+                                                   dtype=weight_dtype, use_fast=False)
     text_encoder_clip = CLIPTextModel.from_pretrained(args.pretrained_decoder, subfolder="text_encoder",
-                                                      torch_dtype=weight_dtype)
-    tokenizer_t5 = AutoTokenizer.from_pretrained("google-t5/t5-large", torch_dtype=weight_dtype,
+                                                      dtype=weight_dtype)
+    tokenizer_t5 = AutoTokenizer.from_pretrained("google-t5/t5-large", dtype=weight_dtype,
                                                  model_max_length=512)
-    text_encoder_t5 = T5EncoderModel.from_pretrained("google-t5/t5-large", torch_dtype=weight_dtype)
+    text_encoder_t5 = T5EncoderModel.from_pretrained("google-t5/t5-large", dtype=weight_dtype)
 
     # download from https://huggingface.co/shihaozhao/LaVi-Bridge/tree/main/t5_unet/adapter --> ./model/LaVi-Bridge
-    adapter = TextAdapter.from_pretrained('./model/LaVi-Bridge')
+    adapter = TextAdapter.from_pretrained('./model/LaVi-Bridge', use_safetensors=False)
 
     noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_decoder, subfolder="scheduler",
                                                     torch_dtype=weight_dtype)
@@ -150,11 +151,14 @@ def main(args):
 
     # Dataset and dataloader
     train_dataset, args.validation_prompts = load_dataset(args)
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, prefetch_factor=3,
-                                                   num_workers=6 if not args.debug else 6, collate_fn=collate_fn,
+    # ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, prefetch_factor=None,
+                                                   num_workers=0 if not args.debug else 0, collate_fn=collate_fn,
                                                    shuffle=True, drop_last=True, pin_memory=True)
     args.max_train_steps = len(train_dataset) * args.max_train_epochs // \
                            (args.batch_size * accelerator.num_processes * accelerator.gradient_accumulation_steps)
+    # INFO: max_train_steps has been set to 100 for debugging
+    # args.max_train_steps = 2
 
     # Optimizer and scheduler
     optimizer_class = torch.optim.AdamW
