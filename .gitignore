@@ -6,6 +6,10 @@ model/
 
 # Dataset files
 dataset/
+coco_extracted_images.json
+journeydb_extracted_images.json
+llava_extracted_images.json
+sam_extracted_images.json
 
 # Output files
 outputs/
