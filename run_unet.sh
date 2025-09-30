@@ -1,5 +1,21 @@
 #!/bin/bash
 
+  #  1. 1回目の学習 (`bash run_unet.sh align ct5f`):
+  #     このステップでは、Stable Diffusionモデルが長いテキスト入力を扱えるように学習します。readme.mdには「support long-text
+  # inputs」と記載されており、run_unet.shを見るとunet_align_ct5.pyというスクリプトが実行されます。これは、モデルの初期学習フェーズに相当します。
+
+  #  2. 2回目の学習 (`bash run_unet.sh reward test`):
+  #     このステップでは、1回目の学習で得られたモデルを使い、選好最適化（Preference
+  # Optimization）によって長いテキストと生成される画像との整合性（アライメント）をさらに向上させます。readme.mdには「preference optimization for
+  # long-text alignment」と記載されており、run_unet.shを見るとunet_reward.pyが実行されます。この際、1回目の学習の成果物（--ckpt_dir
+  # "results/sd15-align-ct5f/"）を読み込んでファインチューニングを行います。
+
+  # 要約すると、1回目で長いテキストを扱えるようにし、2回目でそのテキストに対する画像の忠実度をさらに高める、という流れになります。
+
+  # Train LCM-version Stable Diffusionも同様の2段階の学習を行いますが、こちらはLCM（Latent Consistency
+  # Models）に対応したバージョンを生成するためのものです。
+
+
 export CUDA_LAUNCH_BLOCKING=1
 
 export OMP_NUM_THREADS=8

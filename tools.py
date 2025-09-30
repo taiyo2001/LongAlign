@@ -109,10 +109,12 @@ def load_dataset(args):
 
     # token_ = os.environ.get('HF_TOKEN', None)
     dataset = datasets.load_dataset("luping-liu/LongAlign", num_proc=8)  # , token=token_
-    train_dataset = dataset["train"].with_transform(preprocess_train)
+    # INFO: cocoから100枚だけ使用
+    coco_train_dataset = dataset["train"].filter(lambda x: x['source'] == 'coco', num_proc=8).select(range(100))
+    train_dataset = coco_train_dataset.with_transform(preprocess_train)
     validation_prompts = []
     for i in range(8):
-        validation_prompts.append(dataset['train'][i]['caption'].replace('\n\n', ' ').strip())
+        validation_prompts.append(coco_train_dataset[i]['caption'].replace('\n\n', ' ').strip())
 
     return train_dataset, validation_prompts
 
